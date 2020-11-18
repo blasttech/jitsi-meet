@@ -310,6 +310,37 @@ export function parseStandardURIString(str: string) {
 }
 
 /**
+ * Get the URL parameters
+ * source: Https://css-tricks.com/snippets/javascript/get-url-variables/.
+ *
+ * @param  {string} url - The URL.
+ * @returns {Object}     The URL parameters.
+ */
+export function getUrlParams(url = window.location.search) { // eslint-disable-line no-unused-vars
+    if (!url || !url.substring(1)) {
+        return {};
+    }
+
+    const m = url.match(/\?(.+)/);
+
+    if (m) {
+        // eslint-disable-next-line no-param-reassign
+        url = `?${m[1]}`;
+    }
+
+    const params = {};
+    const vars = url.substring(1).split('&');
+
+    for (let index = 0; index < vars.length; index++) {
+        const pair = vars[index].split('=');
+
+        params[pair[0]] = decodeURIComponent(pair[1]);
+    }
+
+    return params;
+}
+
+/**
  * Parses a specific URI which (supposedly) references a Jitsi Meet resource
  * (location).
  *
@@ -348,6 +379,10 @@ export function parseURIString(uri: ?string) {
     // on the client and/or server sides still don't support certain characters.
     const contextRootEndIndex = pathname.lastIndexOf('/');
     let room = pathname.substring(contextRootEndIndex + 1) || undefined;
+
+    if (!room) {
+        room = getUrlParams(uri).room;
+    }
 
     if (room) {
         const fixedRoom = _fixRoom(room);
