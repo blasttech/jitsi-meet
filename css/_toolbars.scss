@@ -82,39 +82,36 @@
             .toolbox-button {
 
                 .toolbox-icon {
-                    background-color: #fff;
+                    background-color: #5c2cd5;
+                    border: 1px solid #5c2cd5;
                     border-radius: 50%;
-                    border: 1px solid #d1dbe8;
                     margin: 0px 4px;
                     width: 38px;
                     height: 38px;
-        
+                    transition: all .2s ease-in-out;
+
                     &:hover {
-                        background-color: #daebfa;
-                        border: 1px solid #daebfa;
+                        transform: scale(1.2, 1.2);
+                        box-shadow: 0 0 5px rgba(255,255,255,0.5);
                     }
-        
+
                     &.toggled {
-                        background: #2a3a4b;
-                        border: 1px solid #5e6d7a;
-    
+                        background: lightgrey;
+                        border: 1px solid lightgrey;
+
                         svg {
                             fill: #fff;
                         }
-        
-                        &:hover {
-                            background-color: #5e6d7a;
-                        }
                     }
-        
+
                     &.disabled, .disabled & {
                         cursor: initial;
                         color: #fff;
                         background-color: #a4b8d1;
                     }
-    
+
                     svg {
-                        fill: #5e6d7a;
+                        fill: #fff;
                     }
                 }
 
@@ -124,7 +121,7 @@
                         border: 1px solid $hangupColor;
                         width: 40px;
                         height: 40px;
-                
+
                         &:hover {
                             background-color: $hangupColor;
                         }
@@ -230,6 +227,12 @@
             line-height: $newToolbarSize;
             margin: 0 8px;
             text-align: center;
+
+          transition: all .2s ease-in-out;
+
+          &:hover {
+            transform: scale(1.2, 1.2);
+          }
         }
 
         .toolbar-button-with-badge {
@@ -262,7 +265,7 @@
             &:hover, &.toggled {
                 background: $newToolbarButtonHoverColor;
             }
-    
+
             &.disabled {
                 cursor: initial !important;
                 background-color: #a4b8d1 !important;
