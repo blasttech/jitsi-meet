@@ -10,7 +10,7 @@ import {
     loadConfigError,
     restoreConfig,
     setConfig,
-    storeConfig
+    storeConfig, updateConfig
 } from '../base/config';
 import { connect, disconnect, setLocationURL } from '../base/connection';
 import { loadConfig } from '../base/lib-jitsi-meet';
@@ -341,4 +341,20 @@ export function maybeRedirectToWelcomePage(options: Object = {}) {
                 options.showThankYou ? 3000 : 500);
         }
     };
+}
+
+// eslint-disable-next-line require-jsdoc
+export function vaitelSetConfig(data = {}) {
+    APP.store.dispatch(updateConfig(data));
+}
+
+// eslint-disable-next-line require-jsdoc
+export function vaitelGetConfig(key = '', def = null) {
+    const config = APP.store.getState()['features/base/config'];
+
+    if (key) {
+        return key in config ? config[key] : def;
+    }
+
+    return config;
 }
