@@ -23,7 +23,7 @@ import {
     IconRaisedHand,
     IconRec,
     IconShareDesktop,
-    IconShareVideo
+    IconShareVideo, IconWhiteboard
 } from '../../../base/icons';
 import JitsiMeetJS from '../../../base/lib-jitsi-meet';
 import {
@@ -86,6 +86,7 @@ import OverflowMenuButton from './OverflowMenuButton';
 import OverflowMenuProfileItem from './OverflowMenuProfileItem';
 import ToolbarButton from './ToolbarButton';
 import VideoSettingsButton from './VideoSettingsButton';
+import { vaitelGetConfig, vaitelSetConfig } from '../../../app/actions';
 
 /**
  * The type of the React {@code Component} props of {@link Toolbox}.
@@ -374,6 +375,41 @@ class Toolbox extends Component<Props, State> {
                 { this._renderToolboxContent() }
             </div>
         );
+    }
+
+    _onOpenWhiteboard() {
+        if (!window.miroBoardsPicker) {
+            return;
+        }
+
+        window.miroBoardsPicker.open({
+            clientId: vaitelGetConfig('vaitelMiroClientId', '3074457351439725106'),
+            action: 'access-link',
+            allowCreateAnonymousBoards: true,
+            getToken: async () => {
+                const response =
+                    await fetch(
+                        vaitelGetConfig('vaitelMiroTokenUrl', 'https://development.vaitel.com/webhook/v1/miro/token'));
+
+                if (response.status === 200) {
+                    return response.text();
+                }
+
+                throw Error('Failed to fetch the token');
+            },
+            success: data => {
+                console.log('on success', data);
+                vaitelSetConfig({ vaitelShowWhiteboard: data.embedHtml });
+            },
+            error: e => {
+                vaitelSetConfig({ vaitelShowWhiteboard: '' });
+                console.log('on error', e);
+            },
+            cancel: () => {
+                vaitelSetConfig({ vaitelShowWhiteboard: '' });
+                console.log('on cancel');
+            }
+        });
     }
 
     /**
@@ -1012,6 +1048,12 @@ class Toolbox extends Component<Props, State> {
         } = this.props;
 
         return [
+            <OverflowMenuItem
+                accessibilityLabel = 'Whiteboard'
+                icon = { IconWhiteboard }
+                key = 'whiteboard'
+                onClick = { this._onOpenWhiteboard }
+                text = 'Whiteboard' />,
             this._isProfileVisible()
                 && <OverflowMenuProfileItem
                     key = 'profile'
