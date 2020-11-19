@@ -8,13 +8,15 @@
     <!--#include virtual="base.html" -->
 
     <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/all.css">
-    <link rel="manifest" id="manifest-placeholder">
+    <script src="https://miro.com/app/static/boardsPicker.1.0.js"></script>
 
     <script>
         // Dynamically generate the manifest location URL. It must be served from the document origin, and we may have
         // the base pointing to the CDN. This way we can generate a full URL which will bypass the base.
-        document.querySelector('#manifest-placeholder').setAttribute('href', window.location.origin + '/manifest.json');
+        // document.querySelector('#manifest-placeholder').setAttribute('href', window.location.origin + '/manifest.json');
 
         document.addEventListener('DOMContentLoaded', () => {
             if (!JitsiMeetJS.app) {
@@ -25,8 +27,8 @@
                 Component: JitsiMeetJS.app.entryPoints.APP
             })
 
-            const isElectron = navigator.userAgent.includes('Electron');
-            const shouldRegisterWorker = !isElectron && 'serviceWorker' in navigator;
+            // const isElectron = navigator.userAgent.includes('Electron');
+            const shouldRegisterWorker = false; //!isElectron && 'serviceWorker' in navigator;
 
             if (shouldRegisterWorker) {
                 navigator.serviceWorker
@@ -186,10 +188,6 @@
     <!--#include virtual="static/settingsToolbarAdditionalContent.html" -->
   </head>
   <body>
-    <noscript>
-        <div>JavaScript is disabled. </br>For this site to work you have to enable JavaScript.</div>
-    </noscript>
-    <!--#include virtual="body.html" -->
     <div id="react"></div>
   </body>
 </html>
