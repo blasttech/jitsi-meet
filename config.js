@@ -1,12 +1,11 @@
 /* eslint-disable no-unused-vars, no-var */
-
 var config = {
     // Connection
     //
 
     hosts: {
         // XMPP domain.
-        domain: 'jitsi-meet.example.com',
+        domain: 'meeting.vaivu.io',
 
         // When using authentication, domain for guest users.
         // anonymousdomain: 'guest.example.com',
@@ -21,11 +20,11 @@ var config = {
         // focus: 'focus.jitsi-meet.example.com',
 
         // XMPP MUC domain. FIXME: use XEP-0030 to discover it.
-        muc: 'conference.jitsi-meet.example.com'
+        muc: 'conference.meeting.vaivu.io'
     },
 
     // BOSH URL. FIXME: use XEP-0156 to discover it.
-    bosh: '//jitsi-meet.example.com/http-bind',
+    bosh: '//meeting.vaivu.io/http-bind',
 
     // Websocket URL
     // websocket: 'wss://jitsi-meet.example.com/xmpp-websocket',
@@ -337,7 +336,7 @@ var config = {
     // 'datachannel'), undefined (treat it as 'datachannel') and false (don't
     // open any channel).
     // openBridgeChannel: true,
-    openBridgeChannel: 'websocket',
+    openBridgeChannel: 'datachannel',
 
 
     // UI
