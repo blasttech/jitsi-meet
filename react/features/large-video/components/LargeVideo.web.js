@@ -2,9 +2,8 @@
 
 import React, { Component } from 'react';
 
-import { Watermarks } from '../../base/react';
 import { connect } from '../../base/redux';
-import { InviteMore, Subject } from '../../conference';
+import { Subject } from '../../conference';
 import { fetchCustomBrandingData } from '../../dynamic-branding';
 import { Captions } from '../../subtitles/';
 
@@ -15,12 +14,12 @@ type Props = {
     /**
      * The user selected background color.
      */
-     _customBackgroundColor: string,
+    _customBackgroundColor: string,
 
     /**
      * The user selected background image url.
      */
-     _customBackgroundImageUrl: string,
+    _customBackgroundImageUrl: string,
 
     /**
      * Fetches the branding data.
@@ -36,7 +35,9 @@ type Props = {
      * Used to determine the value of the autoplay attribute of the underlying
      * video element.
      */
-    _noAutoPlayVideo: boolean
+    _noAutoPlayVideo: boolean,
+
+    vaitelShowWhiteboard: string
 }
 
 /**
@@ -71,13 +72,10 @@ class LargeVideo extends Component<Props> {
                 id = 'largeVideoContainer'
                 style = { style }>
                 <Subject />
-                <InviteMore />
                 <div id = 'sharedVideo'>
                     <div id = 'sharedVideoIFrame' />
                 </div>
                 <div id = 'etherpad' />
-
-                <Watermarks />
 
                 <div id = 'dominantSpeaker'>
                     <div className = 'dynamic-shadow' />
@@ -96,18 +94,36 @@ class LargeVideo extends Component<Props> {
                       * another container for the background and the
                       * largeVideoWrapper in order to hide/show them.
                       */}
-                    <div id = 'largeVideoWrapper'>
+                    {/* eslint-disable-next-line react/no-danger */}
+                    {this.props.vaitelShowWhiteboard
+                    && <div
+                        style = {{ display: !this.props.vaitelShowWhiteboard ? 'none' : 'block' }}
+                        dangerouslySetInnerHTML = { this.iframeHTML() } />}
+
+                    <div
+                        id = 'largeVideoWrapper'
+                        style = {{ display: this.props.vaitelShowWhiteboard ? 'none' : 'block' }}>
                         <video
                             autoPlay = { !this.props._noAutoPlayVideo }
                             id = 'largeVideo'
                             muted = { true }
-                            playsInline = { true } /* for Safari on iOS to work */ />
+                            playsInline = { true } /* for Safari on iOS to work *//>
                     </div>
                 </div>
-                { interfaceConfig.DISABLE_TRANSCRIPTION_SUBTITLES
-                    || <Captions /> }
+                {interfaceConfig.DISABLE_TRANSCRIPTION_SUBTITLES
+                || <Captions />}
             </div>
         );
+    }
+
+    /**
+     *
+     * @returns {{__html: string}}
+     */
+    iframeHTML() {
+        return {
+            __html: this.props.vaitelShowWhiteboard
+        };
     }
 
     /**
@@ -118,7 +134,10 @@ class LargeVideo extends Component<Props> {
      */
     _getCustomSyles() {
         const styles = {};
-        const { _customBackgroundColor, _customBackgroundImageUrl } = this.props;
+        const {
+            _customBackgroundColor,
+            _customBackgroundImageUrl
+        } = this.props;
 
         styles.backgroundColor = _customBackgroundColor || interfaceConfig.DEFAULT_BACKGROUND;
 
@@ -141,14 +160,19 @@ class LargeVideo extends Component<Props> {
  */
 function _mapStateToProps(state) {
     const testingConfig = state['features/base/config'].testing;
-    const { backgroundColor, backgroundImageUrl } = state['features/dynamic-branding'];
+    const {
+        backgroundColor,
+        backgroundImageUrl
+    } = state['features/dynamic-branding'];
     const { isOpen: isChatOpen } = state['features/chat'];
+    const vaitelShowWhiteboard = state['features/base/config'].vaitelShowWhiteboard;
 
     return {
         _customBackgroundColor: backgroundColor,
         _customBackgroundImageUrl: backgroundImageUrl,
         _isChatOpen: isChatOpen,
-        _noAutoPlayVideo: testingConfig?.noAutoPlayVideo
+        _noAutoPlayVideo: testingConfig?.noAutoPlayVideo,
+        vaitelShowWhiteboard
     };
 }
 
