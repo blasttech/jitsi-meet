@@ -425,7 +425,8 @@ class Toolbox extends Component<Props, State> {
                 APP.conference.commands.sendCommand(
                     'vaitel_whiteboard_command',
                     {
-                        value: data
+                        value: 'Whiteboard created',
+                        attributes: data
                     }
                 );
 
