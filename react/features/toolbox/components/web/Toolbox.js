@@ -417,7 +417,7 @@ class Toolbox extends Component<Props, State> {
                 APP.conference.commands.sendCommand(
                     'vaitel_whiteboard_command',
                     {
-                        ...data
+                        value: data
                     }
                 );
 
