@@ -317,28 +317,6 @@ class Toolbox extends Component<Props, State> {
         });
 
         window.addEventListener('resize', this._onResize);
-
-        this.initWhiteboard();
-    }
-
-    initWhiteboard() {
-        console.log('[Vai] initWhiteboard');
-        if (APP.conference.isJoined()) {
-            console.log('[Vai] isJoined');
-            APP.conference.commands.addCommandListener(
-                'vaitel_whiteboard_command',
-                data => {
-                    // console.log('Whiteboard Created', data, id);
-                    showNotification({ description: 'Someone created a MIRO Board' }, 2000);
-                    vaitelSetConfig({ vaitelShowWhiteboard: data.attributes.embedHtml });
-                });
-
-            return;
-        }
-
-        setTimeout(() => {
-            this.initWhiteboard();
-        }, 1500);
     }
 
     /**
@@ -430,10 +408,6 @@ class Toolbox extends Component<Props, State> {
                 throw Error('Failed to fetch the token');
             },
             success: data => {
-                APP.store.dispatch(showNotification({
-                    description: 'HelloWorld1',
-                    title: 'HelloWorld2'
-                }, 2000));
                 console.log('on success', data);
 
                 APP.conference.commands.sendCommand(

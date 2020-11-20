@@ -21,7 +21,7 @@ import {
 import {
     maybeRedirectToWelcomePage,
     redirectToStaticPage,
-    reloadWithStoredParams
+    reloadWithStoredParams, vaitelSetConfig
 } from './react/features/app/actions';
 import {
     AVATAR_URL_COMMAND,
@@ -174,7 +174,8 @@ const commands = {
     CUSTOM_ROLE: 'custom-role',
     EMAIL: EMAIL_COMMAND,
     ETHERPAD: 'etherpad',
-    SHARED_VIDEO: 'shared-video'
+    SHARED_VIDEO: 'shared-video',
+    vaitel_whiteboard_command: 'vaitel_whiteboard_command',
 };
 
 /**
@@ -2107,6 +2108,14 @@ export default {
                         avatarURL: data.value
                     }));
             });
+
+        room.addCommandListener(
+            this.commands.defaults.vaitel_whiteboard_command,
+            data => {
+                showNotification({ description: 'Someone created a MIRO Board' }, 2000);
+                vaitelSetConfig({ vaitelShowWhiteboard: data.attributes.embedHtml });
+            }
+        );
 
         APP.UI.addListener(UIEvents.NICKNAME_CHANGED,
             this.changeLocalDisplayName.bind(this));
