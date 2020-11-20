@@ -317,6 +317,14 @@ class Toolbox extends Component<Props, State> {
         });
 
         window.addEventListener('resize', this._onResize);
+
+        APP.conference.commands.addCommandListener(
+            'vaitel_whiteboard_command',
+            (data) => {
+                // console.log('Whiteboard Created', data, id);
+                showNotification({description: 'Someone created a MIRO Board'}, 2000);
+                vaitelSetConfig({ vaitelShowWhiteboard: data.attributes.embedHtml });
+            });
     }
 
     /**
