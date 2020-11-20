@@ -175,7 +175,7 @@ const commands = {
     EMAIL: EMAIL_COMMAND,
     ETHERPAD: 'etherpad',
     SHARED_VIDEO: 'shared-video',
-    vaitel_whiteboard_command: 'vaitel_whiteboard_command',
+    vaitel_whiteboard_command: 'vaitel_whiteboard_command'
 };
 
 /**
@@ -2111,9 +2111,21 @@ export default {
 
         room.addCommandListener(
             this.commands.defaults.vaitel_whiteboard_command,
-            data => {
-                showNotification({ description: 'Someone created a MIRO Board' }, 2000);
+            (data, id) => {
+                if (id === this.getMyUserId()) {
+                    console.log('[Vai] Sent Whiteboard command', data);
+                    return true;
+                }
+
+                console.log('[Vai] Received Whiteboard command', data);
+
+                APP.store.dispatch(showNotification({
+                    title: 'Whiteboard',
+                    description: 'Someone has created a MIRO Board'
+                }, 2000));
                 vaitelSetConfig({ vaitelShowWhiteboard: data.attributes.embedHtml });
+
+                return true;
             }
         );
 
