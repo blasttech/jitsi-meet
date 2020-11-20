@@ -230,6 +230,7 @@
     object-fit: cover;
 }
 
+#whiteboard,
 #sharedVideo,
 #etherpad,
 #localVideoWrapper video,
@@ -246,6 +247,10 @@
     z-index: $zindex1;
     width: 100%;
     height: 100%;
+}
+
+#whiteboard {
+  height: calc(100% - 80px);
 }
 
 #etherpad {

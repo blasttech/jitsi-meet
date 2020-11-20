@@ -95,10 +95,6 @@ class LargeVideo extends Component<Props> {
                       * largeVideoWrapper in order to hide/show them.
                       */}
                     {/* eslint-disable-next-line react/no-danger */}
-                    {this.props.vaitelShowWhiteboard
-                    && <div
-                        style = {{ display: !this.props.vaitelShowWhiteboard ? 'none' : 'block' }}
-                        dangerouslySetInnerHTML = { this.iframeHTML() } />}
 
                     <div
                         id = 'largeVideoWrapper'
@@ -110,6 +106,13 @@ class LargeVideo extends Component<Props> {
                             playsInline = { true } /* for Safari on iOS to work *//>
                     </div>
                 </div>
+
+                {this.props.vaitelShowWhiteboard
+                && <div
+                    id = 'whiteboard'
+                    style = {{ display: !this.props.vaitelShowWhiteboard ? 'none' : 'block' }}
+                    dangerouslySetInnerHTML = { this.iframeHTML() } />}
+
                 {interfaceConfig.DISABLE_TRANSCRIPTION_SUBTITLES
                 || <Captions />}
             </div>

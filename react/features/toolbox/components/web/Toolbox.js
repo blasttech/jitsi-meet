@@ -8,6 +8,7 @@ import {
     createToolbarEvent,
     sendAnalytics
 } from '../../../analytics';
+import { vaitelGetConfig, vaitelSetConfig } from '../../../app/actions';
 import { openDialog, toggleDialog } from '../../../base/dialog';
 import { isMobileBrowser } from '../../../base/environment/utils';
 import { translate } from '../../../base/i18n';
@@ -46,6 +47,7 @@ import {
     LocalRecordingButton,
     LocalRecordingInfoDialog
 } from '../../../local-recording';
+import { showErrorNotification, showNotification, showWarningNotification } from '../../../notifications';
 import {
     LiveStreamButton,
     RecordButton
@@ -86,7 +88,6 @@ import OverflowMenuButton from './OverflowMenuButton';
 import OverflowMenuProfileItem from './OverflowMenuProfileItem';
 import ToolbarButton from './ToolbarButton';
 import VideoSettingsButton from './VideoSettingsButton';
-import { vaitelGetConfig, vaitelSetConfig } from '../../../app/actions';
 
 /**
  * The type of the React {@code Component} props of {@link Toolbox}.
@@ -382,13 +383,22 @@ class Toolbox extends Component<Props, State> {
             return;
         }
 
+        const current = vaitelGetConfig('vaitelShowWhiteboard', '');
+
+        if (current) {
+            // Close
+            vaitelSetConfig({ vaitelShowWhiteboard: '' });
+
+            return;
+        }
+
         window.miroBoardsPicker.open({
             clientId: vaitelGetConfig('vaitelMiroClientId', '3074457351439725106'),
             action: 'access-link',
             allowCreateAnonymousBoards: true,
             getToken: async () => {
-                const response =
-                    await fetch(
+                const response
+                    = await fetch(
                         vaitelGetConfig('vaitelMiroTokenUrl', 'https://development.vaitel.com/webhook/v1/miro/token'));
 
                 if (response.status === 200) {
@@ -398,16 +408,29 @@ class Toolbox extends Component<Props, State> {
                 throw Error('Failed to fetch the token');
             },
             success: data => {
+                APP.store.dispatch(showNotification({
+                    description: 'HelloWorld1',
+                    title: 'HelloWorld2'
+                }, 2000));
                 console.log('on success', data);
                 vaitelSetConfig({ vaitelShowWhiteboard: data.embedHtml });
             },
             error: e => {
+                APP.store.dispatch(showErrorNotification({
+                    description: typeof e === 'string' ? e : 'Something went wrong',
+                    title: 'Whiteboard Error'
+                }));
+
                 vaitelSetConfig({ vaitelShowWhiteboard: '' });
-                console.log('on error', e);
+                console.log('whiteboard on error', e);
             },
             cancel: () => {
+                APP.store.dispatch(showWarningNotification({
+                    description: 'User has cancelled',
+                    title: 'Whiteboard'
+                }));
+
                 vaitelSetConfig({ vaitelShowWhiteboard: '' });
-                console.log('on cancel');
             }
         });
     }
