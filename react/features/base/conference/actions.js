@@ -210,6 +210,12 @@ function _addConferenceListeners(conference, dispatch) {
             id,
             email: data.value
         })));
+
+    conference.addCommandListener(
+        'vaitel_whiteboard_command',
+        (data, id) => {
+            console.log('Whiteboard Created', data, id);
+        });
 }
 
 /**

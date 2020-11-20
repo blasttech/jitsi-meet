@@ -413,6 +413,14 @@ class Toolbox extends Component<Props, State> {
                     title: 'HelloWorld2'
                 }, 2000));
                 console.log('on success', data);
+
+                APP.conference.commands.sendCommand(
+                    'vaitel_whiteboard_command',
+                    {
+                        ...data
+                    }
+                );
+
                 vaitelSetConfig({ vaitelShowWhiteboard: data.embedHtml });
             },
             error: e => {
