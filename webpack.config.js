@@ -12,7 +12,8 @@ const devServerProxyTarget
     = process.env.WEBPACK_DEV_SERVER_PROXY_TARGET || 'https://jitsi.local.test/';
 
 const analyzeBundle = process.argv.indexOf('--analyze-bundle') !== -1;
-const detectCircularDeps = process.argv.indexOf('--detect-circular-deps') !== -1;
+// const detectCircularDeps = process.argv.indexOf('--detect-circular-deps') !== -1;
+const detectCircularDeps = false;
 
 const minimize
     = process.argv.indexOf('-p') !== -1

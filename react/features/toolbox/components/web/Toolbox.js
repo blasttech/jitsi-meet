@@ -318,13 +318,27 @@ class Toolbox extends Component<Props, State> {
 
         window.addEventListener('resize', this._onResize);
 
-        APP.conference.commands.addCommandListener(
-            'vaitel_whiteboard_command',
-            (data) => {
-                // console.log('Whiteboard Created', data, id);
-                showNotification({description: 'Someone created a MIRO Board'}, 2000);
-                vaitelSetConfig({ vaitelShowWhiteboard: data.attributes.embedHtml });
-            });
+        this.initWhiteboard();
+    }
+
+    initWhiteboard() {
+        console.log('[Vai] initWhiteboard');
+        if (APP.conference.isJoined()) {
+            console.log('[Vai] isJoined');
+            APP.conference.commands.addCommandListener(
+                'vaitel_whiteboard_command',
+                data => {
+                    // console.log('Whiteboard Created', data, id);
+                    showNotification({ description: 'Someone created a MIRO Board' }, 2000);
+                    vaitelSetConfig({ vaitelShowWhiteboard: data.attributes.embedHtml });
+                });
+
+            return;
+        }
+
+        setTimeout(() => {
+            this.initWhiteboard();
+        }, 1500);
     }
 
     /**
