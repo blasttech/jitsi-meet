@@ -189,6 +189,16 @@ declare var interfaceConfig: Object;
 // interfaceConfig is part of redux we will. This will have to be retrieved from the store.
 const visibleButtons = new Set(interfaceConfig.TOOLBAR_BUTTONS);
 
+const broadcastToOthers = (data) => {
+    APP.conference.commands.sendCommand(
+        'vaitel_whiteboard_command',
+        {
+            value: 'Whiteboard event',
+            attributes: data
+        }
+    );
+}
+
 /**
  * Implements the conference toolbox on React/Web.
  *
@@ -351,16 +361,6 @@ class Toolbox extends Component<Props, State> {
         );
     }
 
-    broadcastToOthers(data) {
-        APP.conference.commands.sendCommand(
-            'vaitel_whiteboard_command',
-            {
-                value: 'Whiteboard event',
-                attributes: data
-            }
-        );
-    }
-
     _onOpenWhiteboard() {
         if (!window.miroBoardsPicker) {
             return;
@@ -378,7 +378,7 @@ class Toolbox extends Component<Props, State> {
 
         if (last) {
             vaitelSetConfig({ vaitelShowWhiteboard: last });
-            this.broadcastToOthers(last);
+            broadcastToOthers(last);
 
             return;
         }
@@ -400,7 +400,7 @@ class Toolbox extends Component<Props, State> {
             },
             success: data => {
                 console.log('on success', data);
-                this.broadcastToOthers(data.embedHtml);
+                broadcastToOthers(data.embedHtml);
                 vaitelSetConfig({ vaitelShowWhiteboard: data.embedHtml });
                 vaitelSetConfig({ vaitelLastShowWhiteboard: data.embedHtml });
             },
