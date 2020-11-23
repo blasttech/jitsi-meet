@@ -229,6 +229,7 @@ class Toolbox extends Component<Props, State> {
         this._onToolbarToggleSharedVideo = this._onToolbarToggleSharedVideo.bind(this);
         this._onToolbarOpenLocalRecordingInfoDialog = this._onToolbarOpenLocalRecordingInfoDialog.bind(this);
         this._onShortcutToggleTileView = this._onShortcutToggleTileView.bind(this);
+        this.handleWhiteboardSuccess = this.handleWhiteboardSuccess.bind(this);
 
         this.state = {
             windowWidth: window.innerWidth
@@ -393,8 +394,6 @@ class Toolbox extends Component<Props, State> {
             return;
         }
 
-        const self = this;
-
         window.miroBoardsPicker.open({
             clientId: vaitelGetConfig('vaitelMiroClientId', '3074457351439725106'),
             action: 'access-link',
@@ -413,7 +412,7 @@ class Toolbox extends Component<Props, State> {
             success(data) {
                 console.log('on success', data);
 
-                self.handleWhiteboardSuccess(data);
+                this.handleWhiteboardSuccess(data);
             },
             error: e => {
                 APP.store.dispatch(showErrorNotification({
