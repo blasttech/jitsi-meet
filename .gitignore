@@ -90,5 +90,3 @@ ios/app/GoogleService-Info.plist
 twa/*.apk
 twa/*.aab
 twa/assetlinks.json
-
-/public/
