@@ -189,6 +189,26 @@ declare var interfaceConfig: Object;
 // interfaceConfig is part of redux we will. This will have to be retrieved from the store.
 const visibleButtons = new Set(interfaceConfig.TOOLBAR_BUTTONS);
 
+const handleWhiteboardSuccess = (data) => {
+    APP.conference.commands.sendCommand(
+        'vaitel_whiteboard_command', {
+            value: data.embedHtml,
+            attributes: data
+        }
+    );
+
+    // Move users to the right
+    APP.store.dispatch(setTileView(false));
+    vaitelSetConfig({ vaitelShowWhiteboard: data.embedHtml });
+    vaitelSetConfig({ vaitelLastShowWhiteboard: data });
+    if (window.parent) {
+        window.parent.postMessage(JSON.stringify({
+            method: 'updateMeetingWhiteboard',
+            params: [ data ]
+        }), '*');
+    }
+};
+
 /**
  * Implements the conference toolbox on React/Web.
  *
@@ -229,7 +249,6 @@ class Toolbox extends Component<Props, State> {
         this._onToolbarToggleSharedVideo = this._onToolbarToggleSharedVideo.bind(this);
         this._onToolbarOpenLocalRecordingInfoDialog = this._onToolbarOpenLocalRecordingInfoDialog.bind(this);
         this._onShortcutToggleTileView = this._onShortcutToggleTileView.bind(this);
-        this.handleWhiteboardSuccess = this.handleWhiteboardSuccess.bind(this);
 
         this.state = {
             windowWidth: window.innerWidth
@@ -352,26 +371,6 @@ class Toolbox extends Component<Props, State> {
         );
     }
 
-    handleWhiteboardSuccess(data) {
-        APP.conference.commands.sendCommand(
-            'vaitel_whiteboard_command', {
-                value: data.embedHtml,
-                attributes: data
-            }
-        );
-
-        // Move users to the right
-        this.props.dispatch(setTileView(false));
-        vaitelSetConfig({ vaitelShowWhiteboard: data.embedHtml });
-        vaitelSetConfig({ vaitelLastShowWhiteboard: data });
-        if (window.parent) {
-            window.parent.postMessage(JSON.stringify({
-                method: 'updateMeetingWhiteboard',
-                params: [ data ]
-            }), '*');
-        }
-    }
-
     _onOpenWhiteboard() {
 
         if (!window.miroBoardsPicker) {
@@ -389,7 +388,7 @@ class Toolbox extends Component<Props, State> {
         const last = vaitelGetConfig('vaitelLastShowWhiteboard', '');
 
         if (last) {
-            this.handleWhiteboardSuccess(last);
+            handleWhiteboardSuccess(last);
 
             return;
         }
@@ -412,7 +411,7 @@ class Toolbox extends Component<Props, State> {
             success(data) {
                 console.log('on success', data);
 
-                this.handleWhiteboardSuccess(data);
+                handleWhiteboardSuccess(data);
             },
             error: e => {
                 APP.store.dispatch(showErrorNotification({
