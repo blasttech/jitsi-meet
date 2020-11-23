@@ -2121,10 +2121,10 @@ export default {
 
                 APP.store.dispatch(showNotification({
                     title: 'Whiteboard',
-                    description: 'Someone has created a MIRO Board'
+                    description: 'MIRO Board has been initiated'
                 }, 2000));
-                vaitelSetConfig({ vaitelShowWhiteboard: data.attributes.embedHtml });
-
+                vaitelSetConfig({ vaitelShowWhiteboard: data });
+                vaitelSetConfig({ vaitelLastShowWhiteboard: data });
                 return true;
             }
         );
