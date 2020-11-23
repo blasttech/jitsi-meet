@@ -43,7 +43,7 @@ import { openSettingsDialog, SETTINGS_TABS, SettingsButton } from '../../../sett
 import { toggleSharedVideo } from '../../../shared-video';
 import { SpeakerStats } from '../../../speaker-stats';
 import { ClosedCaptionButton } from '../../../subtitles';
-import { shouldDisplayTileView, TileViewButton, toggleTileView } from '../../../video-layout';
+import { setTileView, shouldDisplayTileView, TileViewButton, toggleTileView } from '../../../video-layout';
 import { OverflowMenuVideoQualityItem, VideoQualityDialog } from '../../../video-quality';
 import { setFullScreen, setOverflowMenuVisible, setToolbarHovered } from '../../actions';
 import { isToolboxVisible } from '../../functions';
@@ -189,7 +189,7 @@ declare var interfaceConfig: Object;
 // interfaceConfig is part of redux we will. This will have to be retrieved from the store.
 const visibleButtons = new Set(interfaceConfig.TOOLBAR_BUTTONS);
 
-const broadcastToOthers = (data) => {
+const broadcastToOthers = data => {
     APP.conference.commands.sendCommand(
         'vaitel_whiteboard_command',
         {
@@ -197,7 +197,7 @@ const broadcastToOthers = (data) => {
             attributes: {}
         }
     );
-}
+};
 
 /**
  * Implements the conference toolbox on React/Web.
@@ -380,6 +380,9 @@ class Toolbox extends Component<Props, State> {
             vaitelSetConfig({ vaitelShowWhiteboard: last });
             broadcastToOthers(last);
 
+            // Move users to the right
+            this.props.dispatch(setTileView(false));
+
             return;
         }
 
@@ -400,9 +403,14 @@ class Toolbox extends Component<Props, State> {
             },
             success: data => {
                 console.log('on success', data);
-                broadcastToOthers(data.embedHtml);
-                vaitelSetConfig({ vaitelShowWhiteboard: data.embedHtml });
-                vaitelSetConfig({ vaitelLastShowWhiteboard: data.embedHtml });
+                const iframeHTML = data.embedHtml;
+
+                broadcastToOthers(iframeHTML);
+
+                // Move users to the right
+                this.props.dispatch(setTileView(false));
+                vaitelSetConfig({ vaitelShowWhiteboard: iframeHTML });
+                vaitelSetConfig({ vaitelLastShowWhiteboard: iframeHTML });
             },
             error: e => {
                 APP.store.dispatch(showErrorNotification({
@@ -775,6 +783,7 @@ class Toolbox extends Component<Props, State> {
         // this.props.dispatch(beginAddPeople());
         if (window.parent) {
             parent.postMessage('openInviteModal', '*');
+
             return;
         }
 
