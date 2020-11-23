@@ -189,16 +189,6 @@ declare var interfaceConfig: Object;
 // interfaceConfig is part of redux we will. This will have to be retrieved from the store.
 const visibleButtons = new Set(interfaceConfig.TOOLBAR_BUTTONS);
 
-const broadcastToOthers = data => {
-    APP.conference.commands.sendCommand(
-        'vaitel_whiteboard_command',
-        {
-            value: data,
-            attributes: {}
-        }
-    );
-};
-
 /**
  * Implements the conference toolbox on React/Web.
  *
@@ -361,7 +351,28 @@ class Toolbox extends Component<Props, State> {
         );
     }
 
+    handleWhiteboardSuccess(data) {
+        APP.conference.commands.sendCommand(
+            'vaitel_whiteboard_command', {
+                value: data.embedHtml,
+                attributes: data
+            }
+        );
+
+        // Move users to the right
+        this.props.dispatch(setTileView(false));
+        vaitelSetConfig({ vaitelShowWhiteboard: data.embedHtml });
+        vaitelSetConfig({ vaitelLastShowWhiteboard: data });
+        if (window.parent) {
+            window.parent.postMessage(JSON.stringify({
+                method: 'updateMeetingWhiteboard',
+                params: [ data ]
+            }), '*');
+        }
+    }
+
     _onOpenWhiteboard() {
+
         if (!window.miroBoardsPicker) {
             return;
         }
@@ -377,14 +388,12 @@ class Toolbox extends Component<Props, State> {
         const last = vaitelGetConfig('vaitelLastShowWhiteboard', '');
 
         if (last) {
-            vaitelSetConfig({ vaitelShowWhiteboard: last });
-            broadcastToOthers(last);
-
-            // Move users to the right
-            this.props.dispatch(setTileView(false));
+            this.handleWhiteboardSuccess(last);
 
             return;
         }
+
+        const self = this;
 
         window.miroBoardsPicker.open({
             clientId: vaitelGetConfig('vaitelMiroClientId', '3074457351439725106'),
@@ -401,16 +410,10 @@ class Toolbox extends Component<Props, State> {
 
                 throw Error('Failed to fetch the token');
             },
-            success: data => {
+            success(data) {
                 console.log('on success', data);
-                const iframeHTML = data.embedHtml;
 
-                broadcastToOthers(iframeHTML);
-
-                // Move users to the right
-                this.props.dispatch(setTileView(false));
-                vaitelSetConfig({ vaitelShowWhiteboard: iframeHTML });
-                vaitelSetConfig({ vaitelLastShowWhiteboard: iframeHTML });
+                self.handleWhiteboardSuccess(data);
             },
             error: e => {
                 APP.store.dispatch(showErrorNotification({
