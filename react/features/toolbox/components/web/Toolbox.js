@@ -771,8 +771,14 @@ class Toolbox extends Component<Props, State> {
      * @returns {void}
      */
     _onToolbarOpenInvite() {
-        sendAnalytics(createToolbarEvent('invite'));
-        this.props.dispatch(beginAddPeople());
+        // sendAnalytics(createToolbarEvent('invite'));
+        // this.props.dispatch(beginAddPeople());
+        if (window.parent) {
+            parent.postMessage('openInviteModal', '*');
+            return;
+        }
+
+        console.log('[Vai] Vaitel parent page is not there');
     }
 
     _onToolbarOpenKeyboardShortcuts: () => void;
