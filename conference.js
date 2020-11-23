@@ -2123,8 +2123,9 @@ export default {
                     title: 'Whiteboard',
                     description: 'MIRO Board has been initiated'
                 }, 2000));
-                vaitelSetConfig({ vaitelShowWhiteboard: data });
-                vaitelSetConfig({ vaitelLastShowWhiteboard: data });
+
+                vaitelSetConfig({ vaitelShowWhiteboard: data.value });
+                vaitelSetConfig({ vaitelLastShowWhiteboard: data.value });
                 return true;
             }
         );

@@ -193,8 +193,8 @@ const broadcastToOthers = (data) => {
     APP.conference.commands.sendCommand(
         'vaitel_whiteboard_command',
         {
-            value: 'Whiteboard event',
-            attributes: data
+            value: data,
+            attributes: {}
         }
     );
 }
