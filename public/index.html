@@ -1,23 +1,50 @@
 <html itemscope itemtype="http://schema.org/Product" prefix="og: http://ogp.me/ns#" xmlns="http://www.w3.org/1999/html">
-  <head>
+<head>
     <!--#include virtual="head.html" -->
     <meta charset="utf-8">
     <meta http-equiv="content-type" content="text/html;charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2A3A4B">
     <!--#include virtual="base.html" -->
+    <style>
+        @-moz-document url-prefix() {
+            [aria-label="Toggle mute audio"] ~ div {
+                display: none;
+            }
+        }
 
+        @media (max-width: 400px) {
+            .button-group-left, .button-group-right {
+                display: none !important;
+            }
+
+            .button-group-center {
+                width: 100% !important;
+            }
+        }
+
+        body.welcome-page {
+            background-color: #5c2cd5;
+        }
+
+        #welcome_page {
+            display: none;
+        }
+
+        .beta-tag {
+            display: none !important;
+        }
+
+        .watermark.leftwatermark {
+            display: none !important;
+        }
+    </style>
     <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/all.css">
     <script src="https://miro.com/app/static/boardsPicker.1.0.js"></script>
 
     <script>
-        // Dynamically generate the manifest location URL. It must be served from the document origin, and we may have
-        // the base pointing to the CDN. This way we can generate a full URL which will bypass the base.
-        // document.querySelector('#manifest-placeholder').setAttribute('href', window.location.origin + '/manifest.json');
-
         document.addEventListener('DOMContentLoaded', () => {
             if (!JitsiMeetJS.app) {
                 return;
@@ -26,21 +53,7 @@
             JitsiMeetJS.app.renderEntryPoint({
                 Component: JitsiMeetJS.app.entryPoints.APP
             })
-
-            // const isElectron = navigator.userAgent.includes('Electron');
-            const shouldRegisterWorker = false; //!isElectron && 'serviceWorker' in navigator;
-
-            if (shouldRegisterWorker) {
-                navigator.serviceWorker
-                    .register(window.location.origin + '/pwa-worker.js')
-                    .then(reg => {
-                        console.log('Service worker registered.', reg);
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    });
-            }
-        });
+        })
     </script>
     <script>
         // IE11 and earlier can be identified via their user agent and be
@@ -140,24 +153,24 @@
 
                     var showMoreElem = document.getElementById("showMore");
                     showMoreElem.addEventListener('click', function () {
-                            var moreInfoElem
-                                    = document.getElementById("moreInfo");
+                        var moreInfoElem
+                            = document.getElementById("moreInfo");
 
-                            if (showMoreElem.innerHTML === showMoreText) {
-                                moreInfoElem.setAttribute(
-                                    "style",
-                                    "display: block;"
-                                    + "color:#FF991F;"
-                                    + "font-size:small;"
-                                    + "user-select:text;");
-                                showMoreElem.innerHTML = showLessText;
-                            }
-                            else {
-                                moreInfoElem.setAttribute(
-                                    "style", "display: none;");
-                                showMoreElem.innerHTML = showMoreText;
-                            }
-                        });
+                        if (showMoreElem.innerHTML === showMoreText) {
+                            moreInfoElem.setAttribute(
+                                "style",
+                                "display: block;"
+                                + "color:#FF991F;"
+                                + "font-size:small;"
+                                + "user-select:text;");
+                            showMoreElem.innerHTML = showLessText;
+                        }
+                        else {
+                            moreInfoElem.setAttribute(
+                                "style", "display: none;");
+                            showMoreElem.innerHTML = showMoreText;
+                        }
+                    });
 
                     window.setTimeout(
                         function () { window.location.replace(href); }, delay);
@@ -179,15 +192,257 @@
     <script src="libs/do_external_connect.min.js?v=1"></script>
     <script><!--#include virtual="/interface_config.js" --></script>
     <script><!--#include virtual="/logging_config.js" --></script>
-    <script src="libs/lib-jitsi-meet.min.js?v=139"></script>
-    <script src="libs/app.bundle.min.js?v=139"></script>
+    <script src="libs/lib-jitsi-meet.min.js"></script>
+    <script src="libs/app.bundle.min.js"></script>
     <!--#include virtual="title.html" -->
     <!--#include virtual="plugin.head.html" -->
     <!--#include virtual="static/welcomePageAdditionalContent.html" -->
     <!--#include virtual="static/welcomePageAdditionalCard.html" -->
     <!--#include virtual="static/settingsToolbarAdditionalContent.html" -->
-  </head>
-  <body>
-    <div id="react"></div>
-  </body>
+</head>
+<body>
+<div id="react"></div>
+</body>
+<script>
+    window.localisation = {};
+    $(document).ready(function () {
+        try {
+            window.localStorage;
+        } catch {
+            parent.postMessage('redirectLobbyError', '*');
+            return;
+        }
+
+        // Redirect to Lobby when using default Welcome page
+        if ($('#welcome_page').length) {
+            parent.postMessage('redirectLobby', '*');
+            return;
+        }
+
+        let recorder, microphone, recording = false, recordFeatureEnabled = false;
+
+        function initRecording() {
+            if (!recordFeatureEnabled) return;
+            if ($('#mnuRecording').length) return;
+
+            let htmlCode = `
+            <li id="mnuRecording" aria-label="Recording" class="overflow-menu-item">
+                <span class="overflow-menu-item-icon">
+                    <div class="jitsi-icon ">
+                        <svg height="24" width="24" viewBox="0 0 512 512">
+                            <circle style="fill:#F44336;" cx="256" cy="256" r="96"/>
+                            <path d="M256,352c-53.019,0-96-42.981-96-96s42.981-96,96-96s96,42.981,96,96S309.019,352,256,352z M256,192c-35.346,0-64,28.654-64,64s28.654,64,64,64s64-28.654,64-64S291.346,192,256,192z"/>
+                            <path d="M16,192c-8.837,0-16-7.163-16-16V16C0,7.163,7.163,0,16,0h160c8.837,0,16,7.163,16,16s-7.163,16-16,16H32v144C32,184.837,24.837,192,16,192z"/>
+                            <path d="M496,192c-8.837,0-16-7.163-16-16V32H336c-8.837,0-16-7.163-16-16s7.163-16,16-16h160c8.837,0,16,7.163,16,16v160C512,184.837,504.837,192,496,192z"/>
+                            <path d="M176,512H16c-8.837,0-16-7.163-16-16V336c0-8.837,7.163-16,16-16s16,7.163,16,16v144h144c8.837,0,16,7.163,16,16S184.837,512,176,512z"/>
+                            <path d="M496,512H336c-8.837,0-16-7.163-16-16s7.163-16,16-16h144V336c0-8.837,7.163-16,16-16s16,7.163,16,16v160C512,504.837,504.837,512,496,512z"/>
+                        </svg>
+                    </div>
+                </span>
+                <span class="overflow-menu-item-text">Recording</span>
+            </li>
+            `;
+
+            if ($('[aria-label="Toggle full screen"]').length) {
+                $('[aria-label="Toggle full screen"]').after(htmlCode);
+            } else {
+                $('ul.overflow-menu').prepend(htmlCode);
+            }
+
+            $('#mnuRecording').on('click', function () {
+                if (recording) {
+                    parent.postMessage('askStopRecording', '*');
+                } else {
+                    startRecording();
+                    addTopLabel();
+                }
+            });
+
+            const stopRec = window.localisation['webconf.incall_stop_recording'] || 'Stop recording';
+            const startRec = window.localisation['webconf.incall_start_recording'] || 'Start recording';
+
+            if (recording) {
+                $('#mnuRecording .overflow-menu-item-text').text(stopRec);
+            } else {
+                $('#mnuRecording .overflow-menu-item-text').text(startRec);
+            }
+        }
+
+        function addTopLabel() {
+            if ($('#lblRecording').length) return;
+            const recordingText = window.localisation['webconf.incall_recording'] || 'Recording';
+            $('.subject-text').css('display', 'block');
+            $('.subject-conference-timer').css('display', 'inline-block');
+            let $label = $('<span id="lblRecording"> - ' + recordingText + '</span>');
+            $('.subject-conference-timer').after($label);
+            $label.css('opacity', '.6');
+        }
+
+        function installHandler() {
+            if (window.APP && APP.connection && APP.connection.xmpp && APP.connection.xmpp.connection._stropheConn.connected) {
+                APP.connection.xmpp.connection._stropheConn.addHandler(function (msg) {
+                    let text = $(msg).find('>b64-message').text();
+                    try {
+                        text = atob(text)
+                        console.info("[Arena] " + text)
+                    } catch (e) {
+                        console.error("[Arena] Couldnt parse: " + text)
+                        return true
+                    }
+                    if (text || text[0] === '{') {
+                        text = JSON.parse(text);
+                        parent.postMessage(JSON.stringify({
+                            method: 'handleXmppCallback',
+                            params: [text]
+                        }), '*');
+                    }
+                    return true;// Keep active, returning anything else will stop work after first message
+                }, null, 'message', null, null)
+
+                APP.conference.addConferenceListener("conference.kicked",function (e){
+                    parent.postMessage(JSON.stringify({
+                        method: 'handleXmppCallback',
+                        params: [{action:'HOST_DESTROYED'}]
+                    }), '*');
+                });
+
+                APP.conference.addConferenceListener("conference.destroyed",function (e){
+                    parent.postMessage(JSON.stringify({
+                        method: 'handleXmppCallback',
+                        params: [{action:'HOST_DESTROYED'}]
+                    }), '*');
+                });
+
+                APP.conference.addConferenceListener("conference.failed",function (e){
+                    // When e2e encrypt this will be fired
+                    if (e === 'conference.passwordRequired') return;
+
+                    parent.postMessage(JSON.stringify({
+                        method: 'handleXmppCallback',
+                        params: [{action:'HOST_DESTROYED'}]
+                    }), '*');
+                });
+
+                return;
+            }
+
+            setTimeout(installHandler, 100);
+        }
+
+        $('.toolbox-button-wth-dialog').on('mouseup', function () {
+            setTimeout(() => {
+                initRecording();
+            }, 1);
+        });
+
+        function captureMicrophone(callback) {
+            if (microphone) {
+                callback(microphone);
+                return;
+            }
+
+            if (typeof navigator.mediaDevices === 'undefined' || !navigator.mediaDevices.getUserMedia) {
+                alert('This browser does not supports WebRTC getUserMedia API.');
+
+                if (!!navigator.getUserMedia) {
+                    alert('This browser seems supporting deprecated getUserMedia API.');
+                }
+            }
+
+            navigator.mediaDevices.getUserMedia({
+                audio: {echoCancellation: false}
+            }).then(function (mic) {
+                callback(mic);
+            }).catch(function (error) {
+                alert('Unable to capture your microphone. Please check console logs.');
+                console.error(error);
+            });
+        }
+
+        let streams = [];
+
+        function startRecording() {
+            if (streams.length) {
+                if (recorder) recorder.getInternalRecorder().resetVideoStreams(streams);
+            }
+
+            captureMicrophone(function (mic) {
+                streams = [mic];
+                for (video of document.getElementsByTagName('video')) {
+                    streams.push(video.captureStream());
+                }
+
+                if (!recorder) {
+                    recorder = RecordRTC(streams, {
+                        type: 'video',
+                        mimeType: 'video/webm;codecs=vp8,opus'
+                    });
+                    recorder.startRecording();
+                }
+
+                recorder.getInternalRecorder().addStreams(streams);
+                recording = true;
+                parent.postMessage('recordingStarted', '*');
+                $('#mnuRecording .overflow-menu-item-text').text('Stop recording');
+            });
+        }
+
+        function stopRecording(doNotSave) {
+            if (!recorder) return;
+            recording = false; // ASAP
+            recorder.stopRecording(function () {
+                if (!doNotSave) {
+                    invokeSaveAsDialog(recorder.getBlob(), 'Recording.mp4');
+                }
+                recorder = null;
+                parent.postMessage('recordingStopped', '*');
+            });
+            const startRec = window.localisation['webconf.incall_start_recording'] || 'Start recording';
+
+            $('#lblRecording').remove();
+            $('#mnuRecording .overflow-menu-item-text').text(startRec);
+        }
+
+        window.addEventListener('message', function (evnt) {
+            if (evnt.data === 'stopRecording') {
+                stopRecording();
+            } else if (evnt.data === 'updateRecording') {
+                if (recorder && recording) {
+                    startRecording();//Remove and add streams again
+                }
+            } else if (evnt.data === 'discardRecording') {
+                stopRecording('discard');
+            } else if (evnt.data === 'recordFeatureEnabled') {
+                recordFeatureEnabled = true;
+            } else if (evnt.data[0] === '{') {
+                let o = JSON.parse(evnt.data);
+                if (o.method === 'setTitle') {
+                    $('.subject-text').text(o.params[0]);
+                } else if (o.method === 'setLocalisation') {
+                    window.localisation = o.params[0];
+                }
+            }
+        }, false);
+
+        $('[aria-label="Leave the call"]').on('click', function (evnt) {
+            evnt.stopPropagation();
+            evnt.preventDefault();
+            if (recording) {
+                parent.postMessage('askBeforeLeave', '*');
+                return;
+            }
+
+            parent.postMessage('hangup', '*');
+        });
+
+        $('[aria-label="Leave the call"] .jitsi-icon').html(`
+        <svg height="24" width="24" viewBox="0 0 512 512">
+            <path fill="#ffffff" d="M400 54.1c63 45 104 118.6 104 201.9 0 136.8-110.8 247.7-247.5 248C120 504.3 8.2 393 8 256.4 7.9 173.1 48.9 99.3 111.8 54.2c11.7-8.3 28-4.8 35 7.7L162.6 90c5.9 10.5 3.1 23.8-6.6 31-41.5 30.8-68 79.6-68 134.9-.1 92.3 74.5 168.1 168 168.1 91.6 0 168.6-74.2 168-169.1-.3-51.8-24.7-101.8-68.1-134-9.7-7.2-12.4-20.5-6.5-30.9l15.8-28.1c7-12.4 23.2-16.1 34.8-7.8zM296 264V24c0-13.3-10.7-24-24-24h-32c-13.3 0-24 10.7-24 24v240c0 13.3 10.7 24 24 24h32c13.3 0 24-10.7 24-24z"></path>
+        </svg>`);
+
+        parent.postMessage('jitsiFrameLoaded', '*');
+        installHandler();
+    });
+
+</script>
 </html>
