@@ -2132,7 +2132,11 @@ export default {
                 }, 2000));
 
                 setTimeout(() => {
-                    location.search = `?room=${attr.meetingUID}&jwt=${attr.token}`;
+                    if (location.hostname === 'localhost') {
+                        location.search = `?room=${attr.meetingUID}&jwt=${attr.token}`;
+                    } else {
+                        location.href = `/${attr.meetingUID}?jwt=${attr.token}`;
+                    }
                 }, 2000);
                 return true;
             }
