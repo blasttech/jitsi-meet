@@ -49,6 +49,11 @@ class HangupButton extends AbstractHangupButton<Props, *> {
             if (navigator.product === 'ReactNative') {
                 this.props.dispatch(appNavigate(undefined));
             } else {
+                if (window.recording && window.parent) {
+                    parent.postMessage('askBeforeLeave', '*');
+                    return;
+                }
+
                 this.props.dispatch(disconnect(true));
             }
         });
