@@ -2110,6 +2110,35 @@ export default {
             });
 
         room.addCommandListener(
+            'vaitel_breakout_redirect',
+            (data, id) => {
+                const attr = data.attributes;
+                const myId = this.getMyUserId();
+                if (id === myId) {
+                    console.log('[Vai] Sent breakout room command', attr);
+                    return true;
+                }
+
+                if (attr.participantID !== myId) {
+                    console.log('[Vai] Received breakout room command for another user');
+                    return true;
+                }
+
+                console.log('[Vai] Received breakout room command', attr);
+
+                APP.store.dispatch(showNotification({
+                    title: 'Breakout room',
+                    description: `You're redirected to a child room called ${attr.meetingName}`
+                }, 2000));
+
+                setTimeout(() => {
+                    location.search = `?room=${attr.meetingUID}&jwt=${attr.token}`;
+                }, 2000);
+                return true;
+            }
+        );
+
+        room.addCommandListener(
             this.commands.defaults.vaitel_whiteboard_command,
             (data, id) => {
                 if (id === this.getMyUserId()) {

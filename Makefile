@@ -14,13 +14,14 @@ STYLES_MAIN = css/main.scss
 WEBPACK = ./node_modules/.bin/webpack
 WEBPACK_DEV_SERVER = ./node_modules/.bin/webpack-dev-server
 
-all: compile deploy clean
+all: compile deploy
 
 compile:
 	$(WEBPACK) -p
 
 clean:
 	rm -fr $(BUILD_DIR)
+	rm -fr libs/
 
 .NOTPARALLEL:
 deploy: deploy-init deploy-appbundle deploy-rnnoise-binary deploy-lib-jitsi-meet deploy-libflac deploy-olm deploy-css deploy-local
