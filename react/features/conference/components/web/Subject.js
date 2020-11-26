@@ -9,6 +9,7 @@ import { isToolboxVisible } from '../../../toolbox/functions.web';
 import ConferenceTimer from '../ConferenceTimer';
 
 import ParticipantsCount from './ParticipantsCount';
+import { getPropertyValue } from '../../../base/settings';
 
 /**
  * The type of the React {@code Component} props of {@link Subject}.
@@ -47,10 +48,12 @@ class Subject extends Component<Props> {
      */
     render() {
         const { _showParticipantCount, _subject, _visible } = this.props;
+        // Maybe in JWT
+        const meetingName = APP.store.getState()["features/base/jwt"].meetingName;
 
         return (
             <div className = { `subject ${_visible ? 'visible' : ''}` }>
-                <span className = 'subject-text'>{ _subject }</span>
+                <span className = 'subject-text'>{ meetingName || _subject }</span>
                 { _showParticipantCount && <ParticipantsCount /> }
                 <ConferenceTimer />
             </div>

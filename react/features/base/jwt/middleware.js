@@ -138,6 +138,10 @@ function _setJWT(store, next, action) {
 
                 action.jwt = jwt;
                 action.issuer = iss;
+                action.meetingName = jwtPayload.meetingName;
+                // action.meetingUID = jwtPayload.meeting_unique_id;
+                // action.meetingID = jwtPayload.meeting_id;
+
                 if (context) {
                     const user = _user2participant(context.user || {});
 

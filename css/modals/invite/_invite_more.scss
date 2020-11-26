@@ -14,7 +14,6 @@
     }
 
     &-header {
-        font-size: 19px;
         line-height: 28px;
         margin: 24px 0 16px 0;
     }
@@ -53,8 +52,8 @@
             margin: 16px 16px 24px;
             width: calc(100% - 32px);
             color: #fff;
-            font-weight: 600;
-            font-size: 24px;
+            font-weight: 300;
+            font-size: 1.1rem;
             line-height: 32px;
 
             & > div > svg {
@@ -112,11 +111,11 @@
                     border-radius: 4px;
                     cursor: pointer;
                 }
-    
+
                 &:hover > div:hover {
                     background-color: rgba(255, 255, 255, 0.2);
                 }
-    
+
                 & > :not(:last-child) {
                     margin-right: 16px;
                 }

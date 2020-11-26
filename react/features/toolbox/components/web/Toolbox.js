@@ -8,6 +8,7 @@ import { openDialog, toggleDialog } from '../../../base/dialog';
 import { isMobileBrowser } from '../../../base/environment/utils';
 import { translate } from '../../../base/i18n';
 import {
+    IconBreakoutRoom,
     IconChat,
     IconCodeBlock,
     IconExitFullScreen,
@@ -43,6 +44,7 @@ import { openSettingsDialog, SETTINGS_TABS, SettingsButton } from '../../../sett
 import { toggleSharedVideo } from '../../../shared-video';
 import { SpeakerStats } from '../../../speaker-stats';
 import { ClosedCaptionButton } from '../../../subtitles';
+import { BreakoutRoomDialog } from '../../../vaitel-breakout-room';
 import { setTileView, shouldDisplayTileView, TileViewButton, toggleTileView } from '../../../video-layout';
 import { OverflowMenuVideoQualityItem, VideoQualityDialog } from '../../../video-quality';
 import { setFullScreen, setOverflowMenuVisible, setToolbarHovered } from '../../actions';
@@ -249,6 +251,7 @@ class Toolbox extends Component<Props, State> {
         this._onToolbarToggleSharedVideo = this._onToolbarToggleSharedVideo.bind(this);
         this._onToolbarOpenLocalRecordingInfoDialog = this._onToolbarOpenLocalRecordingInfoDialog.bind(this);
         this._onShortcutToggleTileView = this._onShortcutToggleTileView.bind(this);
+        this._onOpenBreakoutRoom = this._onOpenBreakoutRoom.bind(this);
 
         this.state = {
             windowWidth: window.innerWidth
@@ -369,6 +372,10 @@ class Toolbox extends Component<Props, State> {
                 {this._renderToolboxContent()}
             </div>
         );
+    }
+
+    _onOpenBreakoutRoom() {
+        this.props.dispatch(openDialog(BreakoutRoomDialog));
     }
 
     _onOpenWhiteboard() {
@@ -682,6 +689,8 @@ class Toolbox extends Component<Props, State> {
     }
 
     _onShortcutToggleTileView: () => void;
+
+    _onOpenBreakoutRoom: () => void;
 
     /**
      * Dispatches an action for toggling the tile view.
@@ -1411,6 +1420,10 @@ class Toolbox extends Component<Props, State> {
                         buttonsLeft.indexOf('closedcaptions') !== -1
                         && <ClosedCaptionButton />
                     }
+                    <ToolbarButton
+                        icon = { IconBreakoutRoom }
+                        onClick = { this._onOpenBreakoutRoom }
+                        tooltip = { 'Breakout room' } />
                 </div>
                 <div className = 'button-group-center'>
                     {this._renderAudioButton()}

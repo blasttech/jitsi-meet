@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 
-import { Icon, IconMenuThumb } from '../../../base/icons';
+import { Icon, IconCrown, IconForward, IconMenuThumb } from '../../../base/icons';
 import { MEDIA_TYPE } from '../../../base/media';
 import { getLocalParticipant, PARTICIPANT_ROLE } from '../../../base/participants';
 import { Popover } from '../../../base/popover';
@@ -20,6 +20,8 @@ import {
     RemoteVideoMenu,
     VolumeSlider
 } from './';
+import RemoteVideoMenuButton from './RemoteVideoMenuButton';
+import { showWarningNotification } from '../../../notifications';
 
 declare var $: Object;
 declare var interfaceConfig: Object;
@@ -205,6 +207,31 @@ class RemoteVideoMenuTriggerButton extends Component<Props> {
                     participantID = { participantID } />
             );
 
+            buttons.push(
+                <RemoteVideoMenuButton
+                    key = 'move-to-child-room'
+                    buttonText = 'Move to a child room'
+                    icon = { IconForward }
+                    id = { `movetochildroom_${participantID}` }
+                    onClick = { () => {
+                        if (!APP.breakoutRooms) {
+                            APP.store.dispatch(showWarningNotification({
+                                title: 'No breakout rooms available'
+                            }, 2000));
+
+                            return;
+                        }
+
+                        APP.conference.commands.sendCommand(
+                            'vaitel_breakout_redirect', {
+                                value: '',
+                                attributes: {participantID, ...Object.values(APP.breakoutRooms)[0] }
+                            }
+                        );
+                    } }
+                />
+            );
+
             if (!_disableKick) {
                 buttons.push(
                     <KickButton
@@ -212,7 +239,7 @@ class RemoteVideoMenuTriggerButton extends Component<Props> {
                         participantID = { participantID } />
                 );
             }
-        }
+        };
 
         if (remoteControlState) {
             buttons.push(

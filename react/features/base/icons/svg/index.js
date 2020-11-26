@@ -106,3 +106,5 @@ export { default as IconWifi2Bars } from './wifi-2.svg';
 export { default as IconWifi3Bars } from './wifi-3.svg';
 export { default as IconYahoo } from './yahoo.svg';
 export { default as IconWhiteboard } from './whiteboard.svg';
+export { default as IconBreakoutRoom } from './network-wired-solid.svg';
+export { default as IconForward } from './forward-solid.svg';
