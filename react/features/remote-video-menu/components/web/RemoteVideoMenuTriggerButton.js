@@ -208,21 +208,7 @@ class RemoteVideoMenuTriggerButton extends Component<Props> {
             );
 
             if (APP.breakoutRooms && APP.breakoutRooms.length) {
-                buttons.push(
-                    <RemoteVideoMenuButton
-                        key = 'move-to-child-room-empty'
-                        buttonText = 'No breakout rooms available'
-                        icon = { IconForward }
-                        id = { `movetochildroom_${participantID}` }
-                        onClick = { () => {
-                            APP.store.dispatch(showWarningNotification({
-                                title: 'No breakout rooms available',
-                                timout: 2000
-                            }));
-                        } } />
-                );
-            } else {
-                for (const breakoutRoom of APP.breakoutRooms || []) {
+                for (const breakoutRoom of APP.breakoutRooms) {
                     buttons.push(
                         <RemoteVideoMenuButton
                             key = { `movetochildroom_${participantID}_${breakoutRoom.meetingUID}` }
@@ -242,6 +228,20 @@ class RemoteVideoMenuTriggerButton extends Component<Props> {
                             } } />
                     );
                 }
+            } else {
+                buttons.push(
+                    <RemoteVideoMenuButton
+                        key = 'move-to-child-room-empty'
+                        buttonText = 'No breakout rooms available'
+                        icon = { IconForward }
+                        id = { `movetochildroom_${participantID}` }
+                        onClick = { () => {
+                            APP.store.dispatch(showWarningNotification({
+                                title: 'No breakout rooms available',
+                                timout: 2000
+                            }));
+                        } } />
+                );
             }
 
             if (!_disableKick) {

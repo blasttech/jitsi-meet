@@ -30,12 +30,12 @@ function showBreakoutRoom() {
             .then(json => {
                 const [ meetingUID, token ] = json;
 
-                APP.breakoutRooms = APP.breakoutRooms || {};
-                APP.breakoutRooms[meetingUID] = {
+                APP.breakoutRooms = APP.breakoutRooms || [];
+                APP.breakoutRooms.push({
                     meetingName,
                     meetingUID,
                     token
-                };
+                });
                 APP.store.dispatch(hideDialog());
             })
             .catch(e => {
