@@ -8,8 +8,10 @@ import { getLocalParticipant, PARTICIPANT_ROLE } from '../../../base/participant
 import { Popover } from '../../../base/popover';
 import { connect } from '../../../base/redux';
 import { isRemoteTrackMuted } from '../../../base/tracks';
+import { showNotification, showWarningNotification } from '../../../notifications';
 
 import MuteEveryoneElseButton from './MuteEveryoneElseButton';
+import RemoteVideoMenuButton from './RemoteVideoMenuButton';
 
 import {
     GrantModeratorButton,
@@ -20,8 +22,6 @@ import {
     RemoteVideoMenu,
     VolumeSlider
 } from './';
-import RemoteVideoMenuButton from './RemoteVideoMenuButton';
-import { showWarningNotification } from '../../../notifications';
 
 declare var $: Object;
 declare var interfaceConfig: Object;
@@ -207,34 +207,41 @@ class RemoteVideoMenuTriggerButton extends Component<Props> {
                     participantID = { participantID } />
             );
 
-            for (const breakoutRoom of APP.breakoutRooms) {
+            if (APP.breakoutRooms && APP.breakoutRooms.length) {
                 buttons.push(
                     <RemoteVideoMenuButton
-                        key = 'move-to-child-room'
-                        buttonText = { `Move to "${breakoutRoom.meetingName}"` }
+                        key = 'move-to-child-room-empty'
+                        buttonText = 'No breakout rooms available'
                         icon = { IconForward }
-                        id = { `movetochildroom_${participantID}_${breakoutRoom.meetingUID}` }
+                        id = { `movetochildroom_${participantID}` }
                         onClick = { () => {
-                            if (!APP.breakoutRooms) {
-                                APP.store.dispatch(showWarningNotification({
-                                    title: 'No breakout rooms available'
-                                }, 2000));
-
-                                return;
-                            }
-
-                            APP.conference.commands.sendCommand(
-                                'vaitel_breakout_redirect', {
-                                    value: '',
-                                    attributes: {
-                                        participantID,
-                                        ...breakoutRoom
-                                    }
-                                }
-                            );
-                        } }
-                    />
+                            APP.store.dispatch(showWarningNotification({
+                                title: 'No breakout rooms available',
+                                timout: 2000
+                            }));
+                        } } />
                 );
+            } else {
+                for (const breakoutRoom of APP.breakoutRooms || []) {
+                    buttons.push(
+                        <RemoteVideoMenuButton
+                            key = { `movetochildroom_${participantID}_${breakoutRoom.meetingUID}` }
+                            buttonText = { `Move to "${breakoutRoom.meetingName}"` }
+                            icon = { IconForward }
+                            id = { `movetochildroom_${participantID}_${breakoutRoom.meetingUID}` }
+                            onClick = { () => {
+                                APP.conference.commands.sendCommand(
+                                    'vaitel_breakout_redirect', {
+                                        value: '',
+                                        attributes: {
+                                            participantID,
+                                            ...breakoutRoom
+                                        }
+                                    }
+                                );
+                            } } />
+                    );
+                }
             }
 
             if (!_disableKick) {
@@ -244,7 +251,7 @@ class RemoteVideoMenuTriggerButton extends Component<Props> {
                         participantID = { participantID } />
                 );
             }
-        };
+        }
 
         if (remoteControlState) {
             buttons.push(
