@@ -6,6 +6,7 @@ import { createToolbarEvent, sendAnalytics } from '../../analytics';
 import { appNavigate } from '../../app/actions';
 import { disconnect } from '../../base/connection';
 import { translate } from '../../base/i18n';
+import { IconReply } from '../../base/icons';
 import { connect } from '../../base/redux';
 import { AbstractHangupButton } from '../../base/toolbox/components';
 import type { AbstractButtonProps } from '../../base/toolbox/components';
@@ -41,8 +42,24 @@ class HangupButton extends AbstractHangupButton<Props, *> {
      */
     constructor(props: Props) {
         super(props);
+        const childOf = APP.store.getState()['features/base/jwt'].childOf || {};
+
+        if (childOf.meeting_id) {
+            this.icon = IconReply;
+        }
 
         this._hangup = _.once(() => {
+            if (childOf.meeting_id) {
+                const strJwt = `jwt=${childOf.token}`;
+                setTimeout(() => {
+                    if (location.hostname === 'localhost') {
+                        location.search = `?room=${childOf.meeting_id}&${strJwt}`;
+                    } else {
+                        location.href = `/${childOf.meeting_id}?${strJwt}`;
+                    }
+                }, 100);
+            }
+
             sendAnalytics(createToolbarEvent('hangup'));
 
             // FIXME: these should be unified.
@@ -51,6 +68,7 @@ class HangupButton extends AbstractHangupButton<Props, *> {
             } else {
                 if (window.recording && window.parent) {
                     parent.postMessage('askBeforeLeave', '*');
+
                     return;
                 }
 

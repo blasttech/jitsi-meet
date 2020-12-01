@@ -139,6 +139,7 @@ function _setJWT(store, next, action) {
                 action.jwt = jwt;
                 action.issuer = iss;
                 action.meetingName = jwtPayload.meetingName;
+                action.childOf = jwtPayload.childOf;
                 // action.meetingUID = jwtPayload.meeting_unique_id;
                 // action.meetingID = jwtPayload.meeting_id;
 

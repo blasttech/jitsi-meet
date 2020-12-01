@@ -23,7 +23,11 @@ function showBreakoutRoom() {
         const headers = {
             'Content-Type': 'application/json;charset=utf-8'
         };
-        const body = JSON.stringify({ meetingName });
+        const body = JSON.stringify({
+            meetingName,
+            parent_meeting_id: meetingID,
+            parent_token: APP.connection.token
+        });
 
         fetch(jitsiToken + meetingID, { method, headers, body })
             .then(response => response.json())
