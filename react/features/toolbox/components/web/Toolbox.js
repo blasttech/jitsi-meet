@@ -10,7 +10,7 @@ import { translate } from '../../../base/i18n';
 import {
     IconBreakoutRoom,
     IconChat,
-    IconCodeBlock,
+    IconCodeBlock, IconEdit,
     IconExitFullScreen,
     IconFeedback,
     IconFullScreen,
@@ -191,7 +191,7 @@ declare var interfaceConfig: Object;
 // interfaceConfig is part of redux we will. This will have to be retrieved from the store.
 const visibleButtons = new Set(interfaceConfig.TOOLBAR_BUTTONS);
 
-const handleWhiteboardSuccess = (data) => {
+const handleWhiteboardSuccess = data => {
     APP.conference.commands.sendCommand(
         'vaitel_whiteboard_command', {
             value: data.embedHtml,
@@ -252,6 +252,7 @@ class Toolbox extends Component<Props, State> {
         this._onToolbarOpenLocalRecordingInfoDialog = this._onToolbarOpenLocalRecordingInfoDialog.bind(this);
         this._onShortcutToggleTileView = this._onShortcutToggleTileView.bind(this);
         this._onOpenBreakoutRoom = this._onOpenBreakoutRoom.bind(this);
+        this._onDrawOnSharedScreen = this._onDrawOnSharedScreen.bind(this);
 
         this.state = {
             windowWidth: window.innerWidth
@@ -376,6 +377,172 @@ class Toolbox extends Component<Props, State> {
 
     _onOpenBreakoutRoom() {
         this.props.dispatch(openDialog(BreakoutRoomDialog));
+    }
+
+    _onDrawOnSharedScreen() {
+        const vaitelShowDrawing = !vaitelGetConfig('vaitelShowDrawing', false);
+
+        vaitelSetConfig({ vaitelShowDrawing });
+
+        if (window.draw) {
+            window.draw.clear();
+            window.draw = null;
+        }
+
+        if (!vaitelShowDrawing) {
+            return;
+        }
+
+        setTimeout(this.initDrawing, 100);
+    }
+
+    /**
+     * Ref
+     * https://stackoverflow.com/questions/32265207/drawing-svg-with-mouse.
+     */
+    initDrawing() {
+        window.draw = SVG('drawing');// #drawing
+        // const shapes = [];
+        // let index = 0;
+        let drawObject;
+
+        const getDrawObject = () => {
+            const option = {
+                stroke: 'red',
+                'stroke-width': 6,
+                fill: 'none'
+            };
+
+            return draw.polyline().attr(option);
+
+            // switch (shape) {
+            // case 'mouse paint':
+            //     return draw.polyline().attr(option);
+            // case 'ellipse':
+            //     return draw.ellipse().attr(option);
+            // case 'rect':
+            //     return draw.rect().attr(option);
+            // }
+            // return null;
+        };
+
+        const finish = (event) => {
+            if (drawObject) {
+                const currentDrawing = drawObject.draw('stop', event);
+
+                APP.conference.commands.sendCommand(
+                    'vaitel_svg', {
+                        value: currentDrawing.svg(),
+                        attributes: {
+                            width: $('#drawing').width()
+                        }
+                    }
+                );
+
+                currentDrawing
+                    .animate({
+                        ease: '-',
+                        delay: '10s'
+                    })
+                    .stroke({ opacity: 0 })
+                    .after(() => {
+                        currentDrawing.remove();
+                    });
+
+                drawObject = null;
+            }
+        };
+
+
+
+        draw.on('mousedown', event => {
+            drawObject = getDrawObject();
+            drawObject.draw(event);
+            window.mousedownTime = window.performance.now();
+        });
+        draw.on('mousemove', event => {
+            if (drawObject) {
+                drawObject.draw('point', event);
+
+                if ((window.performance.now() - window.mousedownTime) > 10000) {
+                    finish(event);
+                }
+            }
+        });
+        draw.on('mouseup', event => {
+            finish(event);
+        });
+
+        // This is custom extension of line, polyline, polygon which doesn't draw the circle on the line.
+        SVG.Element.prototype.draw.extend('line polyline polygon', {
+            init(e) {
+                // When we draw a polygon, we immediately need 2 points.
+                // One start-point and one point at the mouse-position
+
+                this.set = new SVG.Set();
+
+                let p = this.startPoint,
+                    arr = [
+                        [ p.x, p.y ],
+                        [ p.x, p.y ]
+                    ];
+
+                this.el.plot(arr);
+            },
+
+            // The calc-function sets the position of the last point to the mouse-position (with offset ofc)
+            calc(e) {
+                const arr = this.el.array().valueOf();
+
+                arr.pop();
+
+                if (e) {
+                    const p = this.transformPoint(e.clientX, e.clientY);
+
+                    arr.push(this.snapToGrid([ p.x, p.y ]));
+                }
+
+                this.el.plot(arr);
+
+            },
+
+            point(e) {
+
+                if (this.el.type.indexOf('poly') > -1) {
+                    // Add the new Point to the point-array
+                    let p = this.transformPoint(e.clientX, e.clientY),
+                        arr = this.el.array().valueOf();
+
+                    arr.push(this.snapToGrid([ p.x, p.y ]));
+
+                    this.el.plot(arr);
+
+                    // Fire the `drawpoint`-event, which holds the coords of the new Point
+                    this.el.fire('drawpoint', { event: e,
+                        p: { x: p.x,
+                            y: p.y },
+                        m: this.m });
+
+                    return;
+                }
+
+                // We are done, if the element is no polyline or polygon
+                this.stop(e);
+
+            },
+
+            clean() {
+
+                // Remove all circles
+                this.set.each(function() {
+                    this.remove();
+                });
+
+                this.set.clear();
+
+                delete this.set;
+            }
+        });
     }
 
     _onOpenWhiteboard() {
@@ -1424,6 +1591,11 @@ class Toolbox extends Component<Props, State> {
                         icon = { IconBreakoutRoom }
                         onClick = { this._onOpenBreakoutRoom }
                         tooltip = { 'Breakout room' } />
+
+                    <ToolbarButton
+                        icon = { IconEdit }
+                        onClick = { this._onDrawOnSharedScreen }
+                        tooltip = { 'Draw on shared screen' } />
                 </div>
                 <div className = 'button-group-center'>
                     {this._renderAudioButton()}

@@ -2110,6 +2110,38 @@ export default {
             });
 
         room.addCommandListener(
+            'vaitel_svg',
+            (data, id) => {
+                const attr = data.attributes;
+                const myId = this.getMyUserId();
+                if (id === myId) {
+                    console.log('[Vai] Sent SVG');
+                    return true;
+                }
+
+                console.log('[Vai] Received SVG');
+
+                if (window.draw) {
+                    let group = SVG.get(id) || draw.group().attr({ id });
+                    const scale = $('#drawing').width() / attr.width;
+                    group.scale(scale, scale, 0, 0);
+                    group.svg(data.value).last()
+                        .stroke({ color: 'purple' })
+                        .animate({
+                            ease: '-',
+                            delay: '10s'
+                        })
+                        .stroke({ opacity: 0 })
+                        .after(function () {
+                            this.remove();
+                        });
+                }
+
+                return true;
+            }
+        );
+
+        room.addCommandListener(
             'vaitel_breakout_redirect',
             (data, id) => {
                 const attr = data.attributes;

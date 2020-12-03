@@ -37,7 +37,8 @@ type Props = {
      */
     _noAutoPlayVideo: boolean,
 
-    vaitelShowWhiteboard: string
+    vaitelShowWhiteboard: string,
+    vaitelShowDrawing: boolean
 }
 
 /**
@@ -104,6 +105,9 @@ class LargeVideo extends Component<Props> {
                             id = 'largeVideo'
                             muted = { true }
                             playsInline = { true } /* for Safari on iOS to work *//>
+
+                        {this.props.vaitelShowDrawing && <div id = 'drawing'></div>}
+                        {this.props.vaitelShowDrawing && <div id = 'drawingBorderContainer'><div id = 'drawingBorder'></div></div>}
                     </div>
                 </div>
 
@@ -169,13 +173,15 @@ function _mapStateToProps(state) {
     } = state['features/dynamic-branding'];
     const { isOpen: isChatOpen } = state['features/chat'];
     const vaitelShowWhiteboard = state['features/base/config'].vaitelShowWhiteboard;
+    const vaitelShowDrawing = state['features/base/config'].vaitelShowDrawing;
 
     return {
         _customBackgroundColor: backgroundColor,
         _customBackgroundImageUrl: backgroundImageUrl,
         _isChatOpen: isChatOpen,
         _noAutoPlayVideo: testingConfig?.noAutoPlayVideo,
-        vaitelShowWhiteboard
+        vaitelShowWhiteboard,
+        vaitelShowDrawing
     };
 }
 

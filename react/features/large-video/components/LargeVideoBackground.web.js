@@ -199,7 +199,7 @@ export class LargeVideoBackground extends Component<Props> {
      */
     _setUpdateCanvasInterval() {
         this._clearUpdateCanvasInterval();
-        this._updateCanvasInterval = setInterval(this._updateCanvas, 200);
+        this._updateCanvasInterval = setInterval(this._updateCanvas, 2000);
     }
 
     _updateCanvas: () => void;

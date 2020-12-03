@@ -58,6 +58,8 @@ class HangupButton extends AbstractHangupButton<Props, *> {
                         location.href = `/${childOf.meeting_id}?${strJwt}`;
                     }
                 }, 100);
+
+                return;
             }
 
             sendAnalytics(createToolbarEvent('hangup'));

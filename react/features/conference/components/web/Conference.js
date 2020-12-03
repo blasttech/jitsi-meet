@@ -98,6 +98,7 @@ class Conference extends AbstractConference<Props, *> {
     _onFullScreenChange: Function;
     _onShowToolbar: Function;
     _originalOnShowToolbar: Function;
+    showToolbarHandler: number;
 
     /**
      * Initializes a new Conference instance.
@@ -226,7 +227,10 @@ class Conference extends AbstractConference<Props, *> {
      * @returns {void}
      */
     _onShowToolbar() {
-        this.props.dispatch(showToolbox());
+        clearTimeout(this.showToolbarHandler);
+        this.showToolbarHandler = setTimeout(() => {
+            this.props.dispatch(showToolbox());
+        }, 100);
     }
 
     /**
