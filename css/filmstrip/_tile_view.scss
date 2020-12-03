@@ -51,6 +51,7 @@
         &.shift-right {
             margin-left: $sidebarWidth;
             width: calc(100% - #{$sidebarWidth});
+            pointer-events: none;
 
             #filmstripRemoteVideos {
                 width: calc(100vw - #{$sidebarWidth});

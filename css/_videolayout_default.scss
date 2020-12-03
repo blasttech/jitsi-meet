@@ -230,6 +230,8 @@
     object-fit: cover;
 }
 
+#drawing,
+#drawingBorderContainer,
 #whiteboard,
 #sharedVideo,
 #etherpad,
@@ -247,6 +249,28 @@
     z-index: $zindex1;
     width: 100%;
     height: 100%;
+}
+
+#drawing {
+  background-color: rgba(255, 255, 255, .3);
+}
+
+#drawingBorderContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+
+  #drawingBorder {
+    border: 6px solid greenyellow;
+    border-radius: 3px;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    box-sizing: border-box;
+  }
 }
 
 #whiteboard {
