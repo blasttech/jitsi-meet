@@ -426,7 +426,7 @@ class Toolbox extends Component<Props, State> {
             // return null;
         };
 
-        const finish = (event) => {
+        const finish = event => {
             if (drawObject) {
                 const currentDrawing = drawObject.draw('stop', event);
 
@@ -452,7 +452,6 @@ class Toolbox extends Component<Props, State> {
                 drawObject = null;
             }
         };
-
 
 
         draw.on('mousedown', event => {
@@ -1558,6 +1557,8 @@ class Toolbox extends Component<Props, State> {
 
         }
 
+        const vaitelBreakOutEnabled = vaitelGetConfig('vaitelBreakOutEnabled');
+
         overflowMenuContent.splice(
             1, 0, ...this._renderMovedButtons(movedButtons));
 
@@ -1587,10 +1588,13 @@ class Toolbox extends Component<Props, State> {
                         buttonsLeft.indexOf('closedcaptions') !== -1
                         && <ClosedCaptionButton />
                     }
-                    <ToolbarButton
-                        icon = { IconBreakoutRoom }
-                        onClick = { this._onOpenBreakoutRoom }
-                        tooltip = { 'Breakout room' } />
+                    {
+                        vaitelBreakOutEnabled
+                        && <ToolbarButton
+                            icon = { IconBreakoutRoom }
+                            onClick = { this._onOpenBreakoutRoom }
+                            tooltip = { 'Breakout room' } />
+                    }
 
                     <ToolbarButton
                         icon = { IconEdit }

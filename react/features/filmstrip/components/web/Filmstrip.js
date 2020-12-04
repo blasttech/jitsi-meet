@@ -195,6 +195,11 @@ class Filmstrip extends Component <Props> {
             remoteVideosWrapperClassName += ' hide-scrollbar';
         }
 
+        let mouseOff = '';
+        if (this.props._currentLayout === LAYOUTS.VERTICAL_FILMSTRIP_VIEW) {
+            mouseOff = 'mouse-off';
+        }
+
         let toolbar = null;
 
         if (!this.props._hideToolbar) {
@@ -203,7 +208,7 @@ class Filmstrip extends Component <Props> {
 
         return (
             <div
-                className = { `filmstrip ${this.props._className}` }
+                className = { `filmstrip ${this.props._className} ${mouseOff}` }
                 style = { filmstripStyle }>
                 { toolbar }
                 <div
