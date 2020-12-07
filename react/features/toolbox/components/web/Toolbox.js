@@ -24,7 +24,7 @@ import {
     IconWhiteboard
 } from '../../../base/icons';
 import JitsiMeetJS from '../../../base/lib-jitsi-meet';
-import { getLocalParticipant, getParticipants, participantUpdated } from '../../../base/participants';
+import { getLocalParticipant, getParticipants, participantUpdated, pinParticipant } from '../../../base/participants';
 import { connect, equals } from '../../../base/redux';
 import { OverflowMenuItem } from '../../../base/toolbox/components';
 import { getLocalVideoTrack, toggleScreensharing } from '../../../base/tracks';
@@ -170,7 +170,10 @@ type Props = {
     /**
      * Invoked to obtain translated strings.
      */
-    t: Function
+    t: Function,
+
+    /* Controls toggling */
+    _vaitelShowDrawing: boolean,
 };
 
 /**
@@ -401,6 +404,9 @@ class Toolbox extends Component<Props, State> {
      * https://stackoverflow.com/questions/32265207/drawing-svg-with-mouse.
      */
     initDrawing() {
+        APP.store.dispatch(setTileView(false));
+        APP.store.dispatch(pinParticipant(APP.conference.getMyUserId()));
+
         window.draw = SVG('drawing');// #drawing
         // const shapes = [];
         // let index = 0;
@@ -1598,6 +1604,7 @@ class Toolbox extends Component<Props, State> {
 
                     <ToolbarButton
                         icon = { IconEdit }
+                        toggled = { this.props._vaitelShowDrawing }
                         onClick = { this._onDrawOnSharedScreen }
                         tooltip = { 'Draw on shared screen' } />
                 </div>
@@ -1697,6 +1704,7 @@ function _mapStateToProps(state) {
     const buttons = new Set(interfaceConfig.TOOLBAR_BUTTONS);
 
     return {
+        _vaitelShowDrawing: state['features/base/config'].vaitelShowDrawing,
         _chatOpen: state['features/chat'].isOpen,
         _conference: conference,
         _desktopSharingEnabled: desktopSharingEnabled,
