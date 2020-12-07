@@ -86,7 +86,7 @@ import {
     participantMutedUs,
     participantPresenceChanged,
     participantRoleChanged,
-    participantUpdated
+    participantUpdated, pinParticipant
 } from './react/features/base/participants';
 import {
     getUserSelectedCameraDeviceId,
@@ -130,6 +130,7 @@ import { endpointMessageReceived } from './react/features/subtitles';
 import UIEvents from './service/UI/UIEvents';
 import * as RemoteControlEvents
     from './service/remotecontrol/RemoteControlEvents';
+import { setTileView } from './react/features/video-layout';
 
 const logger = Logger.getLogger(__filename);
 
@@ -1527,6 +1528,9 @@ export default {
         if (toggle) {
             try {
                 await this._switchToScreenSharing(options);
+
+                APP.store.dispatch(setTileView(false));
+                APP.store.dispatch(pinParticipant(APP.conference.getMyUserId()));
 
                 return;
             } catch (err) {
