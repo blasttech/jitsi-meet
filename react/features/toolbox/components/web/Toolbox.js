@@ -24,7 +24,13 @@ import {
     IconWhiteboard
 } from '../../../base/icons';
 import JitsiMeetJS from '../../../base/lib-jitsi-meet';
-import { getLocalParticipant, getParticipants, participantUpdated, pinParticipant } from '../../../base/participants';
+import {
+    getLocalParticipant,
+    getParticipants,
+    PARTICIPANT_ROLE,
+    participantUpdated,
+    pinParticipant
+} from '../../../base/participants';
 import { connect, equals } from '../../../base/redux';
 import { OverflowMenuItem } from '../../../base/toolbox/components';
 import { getLocalVideoTrack, toggleScreensharing } from '../../../base/tracks';
@@ -174,6 +180,12 @@ type Props = {
 
     /* Controls toggling */
     _vaitelShowDrawing: boolean,
+
+    /* Breakout only when more than 1 */
+    participantsLen: boolean,
+
+    /* Moderator flag */
+    isModerator: boolean,
 };
 
 /**
@@ -1595,7 +1607,7 @@ class Toolbox extends Component<Props, State> {
                         && <ClosedCaptionButton />
                     }
                     {
-                        vaitelBreakOutEnabled
+                        vaitelBreakOutEnabled && this.props.isModerator && (this.props.participantsLen > 1)
                         && <ToolbarButton
                             icon = { IconBreakoutRoom }
                             onClick = { this._onOpenBreakoutRoom }
@@ -1702,8 +1714,14 @@ function _mapStateToProps(state) {
     // NB: We compute the buttons again here because if URL parameters were used to
     // override them we'd miss it.
     const buttons = new Set(interfaceConfig.TOOLBAR_BUTTONS);
+    const participantsLen = getParticipants(state).length;
+
+    const isModerator
+        = getLocalParticipant(state).role === PARTICIPANT_ROLE.MODERATOR;
 
     return {
+        isModerator,
+        participantsLen,
         _vaitelShowDrawing: state['features/base/config'].vaitelShowDrawing,
         _chatOpen: state['features/chat'].isOpen,
         _conference: conference,
